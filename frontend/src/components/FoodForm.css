@@ -1,0 +1,47 @@
+.food-form {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr 160px 1.2fr 140px;  /* Nome | Preço | URL | Botão */
+}
+
+/* Em telas menores, quebra para linhas */
+@media (max-width: 720px) {
+  .food-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+.food-form input {
+  padding: 12px 14px;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  background: #fff;
+  outline: none;
+  transition: box-shadow .15s ease, border-color .15s ease;
+  font-size: 16px;
+}
+
+.food-form input::placeholder {
+  color: #9aa0a6;
+}
+
+.food-form input:focus {
+  border-color: #c7d2fe;               /* indigo-200 */
+  box-shadow: 0 0 0 4px rgba(99,102,241,.12); /* indigo-500 fraco */
+}
+
+.btn-primary {
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-weight: 700;
+  background: #6366f1; /* indigo-500 */
+  color: #fff;
+  cursor: pointer;
+  transition: transform .04s ease, filter .15s ease;
+  font-size: 16px;
+}
+.btn-primary:hover { filter: brightness(0.96); }
+.btn-primary:active { transform: translateY(1px); }
+.btn-primary:disabled { opacity: .7; cursor: not-allowed; }

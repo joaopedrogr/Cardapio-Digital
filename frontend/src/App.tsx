@@ -1,41 +1,30 @@
-import React, { useEffect, useState } from "react";
-import { Food } from "./types/Food";
-import { getFoods, addFood, deleteFood } from "./api/foodApi";
-import FoodCard from "./components/FoodCard";
-import FoodForm from "./components/FoodForm";
 import "./App.css";
+import { useState } from "react";
+import FoodForm from "./components/FoodForm";
 
-const App: React.FC = () => {
-  const [foods, setFoods] = useState<Food[]>([]);
+export default function App() {
+  const [adding, setAdding] = useState(false);
 
-  const fetchFoods = async () => {
-    const res = await getFoods();
-    setFoods(res.data);
-  };
-
-  useEffect(() => {
-    fetchFoods();
-  }, []);
-
-  const handleAdd = async (food: Omit<Food, "id">) => {
-    await addFood(food);
-    fetchFoods();
-  };
-
-  const handleDelete = async (id: number) => {
-    await deleteFood(id);
-    fetchFoods();
-  };
+  async function handleAdd(data: { name: string; price: number; imageUrl?: string }) {
+    try {
+      setAdding(true);
+      console.log("Novo item:", data);
+    } finally {
+      setAdding(false);
+    }
+  }
 
   return (
-    <div className="App">
-      <h1>Cardápio</h1>
-      <FoodForm onAdd={handleAdd} />
-      {foods.map(food => (
-        <FoodCard key={food.id} food={food} onDelete={handleDelete} />
-      ))}
+    <div className="page">
+      <header className="hero">
+        <h1 className="hero-title">Cardápio</h1>
+        <p className="hero-subtitle">Cadastre itens de forma simples e rápida</p>
+      </header>
+
+      <section className="panel">
+        <h2 className="panel-title">Novo item</h2>
+        <FoodForm onAdd={handleAdd} loading={adding} />
+      </section>
     </div>
   );
-};
-
-export default App;
+}

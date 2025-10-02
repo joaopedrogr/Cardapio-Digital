@@ -1,33 +1,50 @@
-import React, { useState } from "react";
-import { Food } from "../types/Food";
+import { useState } from "react";
 import "./FoodForm.css";
 
-interface Props {
-  onAdd: (food: Omit<Food, "id">) => void;
-}
+type FormData = { name: string; price: number; imageUrl?: string };
 
-const FoodForm: React.FC<Props> = ({ onAdd }) => {
+type Props = {
+  onAdd: (data: FormData) => void | Promise<void>;
+  loading?: boolean; // <-- ADICIONADO
+};
+
+export default function FoodForm({ onAdd, loading = false }: Props) {
   const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
+  const [price, setPrice] = useState<number | "">("");
   const [imageUrl, setImageUrl] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name || !price || !imageUrl) return;
-    onAdd({ name, price: Number(price), imageUrl });
+    if (!name || price === "" || Number(price) < 0) return;
+    onAdd({ name, price: Number(price), imageUrl: imageUrl || undefined });
     setName("");
     setPrice("");
     setImageUrl("");
-  };
+  }
 
   return (
     <form className="food-form" onSubmit={handleSubmit}>
-      <input placeholder="Nome" value={name} onChange={e => setName(e.target.value)} />
-      <input placeholder="Preço" type="number" value={price} onChange={e => setPrice(e.target.value)} />
-      <input placeholder="URL da imagem" value={imageUrl} onChange={e => setImageUrl(e.target.value)} />
-      <button type="submit">Adicionar</button>
+      <input
+        placeholder="Nome"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <input
+        placeholder="Preço"
+        inputMode="decimal"
+        value={price}
+        onChange={(e) =>
+          setPrice(e.target.value === "" ? "" : Number(e.target.value))
+        }
+      />
+      <input
+        placeholder="URL da imagem"
+        value={imageUrl}
+        onChange={(e) => setImageUrl(e.target.value)}
+      />
+      <button className="btn-primary" disabled={loading}>
+        {loading ? "Adicionando…" : "Adicionar"}
+      </button>
     </form>
   );
-};
-
-export default FoodForm;
+}
