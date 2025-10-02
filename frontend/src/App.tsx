@@ -1,43 +1,41 @@
-import { useState } from 'react'
-import './App.css'
-import { Card } from './components/card/card';
-import type { FoodData } from './interface/FoodData';
-import { useFoodData } from './hooks/useFoodData';
-import { CreateModal } from './components/create-modal/create-modal';
+import React, { useEffect, useState } from "react";
+import { Food } from "./types/Food";
+import { getFoods, addFood, deleteFood } from "./api/foodApi";
+import FoodCard from "./components/FoodCard";
+import FoodForm from "./components/FoodForm";
+import "./App.css";
 
-function App() {
-  const { data, isLoading, isError } = useFoodData();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const App: React.FC = () => {
+  const [foods, setFoods] = useState<Food[]>([]);
 
-  const handleOpenModal = () => {
-    setIsModalOpen(prev => !prev)
-  }
+  const fetchFoods = async () => {
+    const res = await getFoods();
+    setFoods(res.data);
+  };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  useEffect(() => {
+    fetchFoods();
+  }, []);
 
-  if (isError) {
-    return <div>Error loading data.</div>;
-  }
+  const handleAdd = async (food: Omit<Food, "id">) => {
+    await addFood(food);
+    fetchFoods();
+  };
+
+  const handleDelete = async (id: number) => {
+    await deleteFood(id);
+    fetchFoods();
+  };
 
   return (
-    <div className="container">
+    <div className="App">
       <h1>Cardápio</h1>
-      <div className="card-grid">
-        {data?.map(foodData => (
-          <Card
-            key={foodData.id}
-            price={foodData.price} 
-            title={foodData.title} 
-            image={foodData.image}
-          />
-        ))}
-      </div>
-      {isModalOpen && <CreateModal closeModal={handleOpenModal}/>}
-      <button onClick={handleOpenModal}>novo</button>
+      <FoodForm onAdd={handleAdd} />
+      {foods.map(food => (
+        <FoodCard key={food.id} food={food} onDelete={handleDelete} />
+      ))}
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;

@@ -1,5 +1,0 @@
-import os
-
-cardapio_path = "/app/cardapio"
-for filename in os.listdir(cardapio_path):
-    print(filename)
