@@ -1,21 +1,30 @@
 import React from "react";
 import { Food } from "../types/Food";
-import "./FoodCard.css";
 
-interface Props {
+type Props = {
   food: Food;
-  onDelete: (id: number) => void;
-}
+  onDelete: (id: string) => void; // <-- string
+};
 
 const FoodCard: React.FC<Props> = ({ food, onDelete }) => {
+  // aceita _id ou id; se nenhum existir, não renderiza botão
+  const id = food._id ?? food.id ?? "";
+
+  // garante número para toFixed
+  const priceNum = typeof food.price === "number" ? food.price : Number(food.price ?? 0);
+
   return (
     <div className="food-card">
-      <img src={food.imageUrl} alt={food.name} />
-      <div>
-        <h3>{food.name}</h3>
-        <p>R$ {food.price.toFixed(2)}</p>
+      <div className="food-body">
+        <strong>{food.name}</strong>
+        <p>R$ {priceNum.toFixed(2)}</p>
       </div>
-      <button onClick={() => onDelete(food.id)}>Deletar</button>
+
+      {id && (
+        <button onClick={() => onDelete(id)}>
+          Deletar
+        </button>
+      )}
     </div>
   );
 };
