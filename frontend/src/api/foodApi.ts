@@ -30,28 +30,37 @@ async function fetchJSON<T>(input: RequestInfo | URL, init?: RequestInit): Promi
   throw new Error(message);
 }
 
+function pick<T = any>(obj: any, keys: string[]): T | undefined {
+  for (const k of keys) if (obj && obj[k] != null) return obj[k];
+  return undefined;
+}
+
 function normalizeFood(obj: any): Food {
-  const id = obj?._id ?? obj?.id ?? undefined;
-  const rawPrice = obj?.price;
-  const priceNum = typeof rawPrice === "number" ? rawPrice : rawPrice != null ? Number(rawPrice) : 0;
+  const id = pick<string>(obj, ["_id", "id"]);
+  const rawPrice = pick<any>(obj, ["price", "preco", "valor", "amount"]);
+  const name = pick<string>(obj, ["name", "nome", "title", "productName"]);
+  const img = pick<string>(obj, ["imageUrl", "image_url", "image", "url", "photo", "picture", "thumbnail"]);
+  const n = typeof rawPrice === "number" ? rawPrice : rawPrice != null ? Number(String(rawPrice).replace(/\./g, "").replace(",", ".")) : 0;
+
   return {
     _id: typeof id === "string" ? id : undefined,
     id: typeof id === "string" ? id : undefined,
-    name: obj?.name ?? "",
-    price: isNaN(priceNum) ? 0 : priceNum,
-    imageUrl: obj?.imageUrl ?? obj?.image_url ?? obj?.image ?? undefined,
-    description: obj?.description ?? undefined,
-    color: obj?.color ?? undefined,
-    weight: obj?.weight ?? undefined,
-    type: obj?.type ?? undefined,
+    name: name ?? "",
+    price: Number.isFinite(n) ? n : 0,
+    imageUrl: img ?? undefined,
+    description: pick<string>(obj, ["description", "descricao"]),
+    type: pick<string>(obj, ["type", "categoria", "category"]),
     createdAt: obj?.createdAt ?? obj?.created_at ?? undefined,
     updatedAt: obj?.updatedAt ?? obj?.updated_at ?? undefined,
   };
 }
 
 export async function getFoods(): Promise<Food[]> {
-  const data = await fetchJSON<any[]>(`${API_BASE}${RESOURCE}`);
-  return Array.isArray(data) ? data.map(normalizeFood) : [];
+  const raw = await fetchJSON<any>(`${API_BASE}${RESOURCE}`);
+  const arr = Array.isArray(raw)
+    ? raw
+    : raw?.products ?? raw?.items ?? raw?.data ?? raw?.result ?? [];
+  return Array.isArray(arr) ? arr.map(normalizeFood) : [];
 }
 
 export type CreateFoodDTO = {
@@ -59,18 +68,25 @@ export type CreateFoodDTO = {
   price: number;
   imageUrl?: string;
   description?: string;
-  color?: string;
-  weight?: number;
   type?: string;
 };
 
-export async function addFood(body: CreateFoodDTO): Promise<Food> {
-  const created = await fetchJSON<any>(`${API_BASE}${RESOURCE}`, { method: "POST", body: JSON.stringify(body) });
-  return normalizeFood(created);
+export async function addFood(body: CreateFoodDTO): Promise<Food | null> {
+  const created = await fetchJSON<any>(`${API_BASE}${RESOURCE}`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+  if (!created) return null;
+  const norm = normalizeFood(created);
+  if (!norm.name) return null;
+  return norm;
 }
 
 export async function updateFood(id: string, body: Partial<CreateFoodDTO>): Promise<Food> {
-  const updated = await fetchJSON<any>(`${API_BASE}${RESOURCE}/${id}`, { method: "PUT", body: JSON.stringify(body) });
+  const updated = await fetchJSON<any>(`${API_BASE}${RESOURCE}/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
   return normalizeFood(updated);
 }
 
