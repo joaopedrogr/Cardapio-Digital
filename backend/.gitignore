@@ -17,3 +17,9 @@ logs/
 
 # Mac
 .DS_Store
+
+# Prisma
+/src/generated/prisma
+
+# Environment
+.env

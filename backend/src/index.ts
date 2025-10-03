@@ -1,12 +1,11 @@
 import express from "express";
 import cors from "cors";
-import bodyParser from "body-parser";
 import foodRoutes from "./routes/foodRoutes";
 
 const app = express();
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json()); 
 
 app.use("/api/foods", foodRoutes);
 
