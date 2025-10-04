@@ -1,5 +1,6 @@
 import React from "react";
 import { Food } from "../types/Food";
+import "./FoodCard.css";
 
 type Props = {
   food: Food;

@@ -5,6 +5,8 @@ import FoodCard from "./components/FoodCard";
 import type { Food } from "./types/Food";
 import { getFoods, addFood, deleteFood } from "./api/foodApi";
 import logo from "./assets/logo-tri-fratelli.png";
+import "./components/FoodCard.css";
+import "./components/FoodForm.css";
 
 function App() {
   const [items, setItems] = useState<Food[]>([]);
