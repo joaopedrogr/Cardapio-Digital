@@ -1,6 +1,7 @@
 import "./App.css";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import FoodForm from "./components/FoodForm";
+import FoodCard from "./components/FoodCard";
 import type { Food } from "./types/Food";
 import { getFoods, addFood, deleteFood } from "./api/foodApi";
 import logo from "./assets/logo-tri-fratelli.png";
@@ -9,13 +10,8 @@ function App() {
   const [items, setItems] = useState<Food[]>([]);
   const [loadingList, setLoadingList] = useState(true);
   const [adding, setAdding] = useState(false);
-  const [q, setQ] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [sort, setSort] = useState<"name_asc" | "price_asc" | "price_desc">("name_asc");
-  const [cat, setCat] = useState<string>("__all__");
   const [flash, setFlash] = useState<string | null>(null);
-
-  const getId = (it: Food) => it._id ?? it.id ?? "";
 
   async function refreshList() {
     try {
@@ -30,19 +26,19 @@ function App() {
     }
   }
 
-  useEffect(() => { refreshList(); }, []);
+  useEffect(() => {
+    refreshList();
+  }, []);
 
   async function handleAdd(data: { name: string; price: number; imageUrl?: string }) {
     setAdding(true);
     try {
       const created = await addFood(data);
-      if (created && created.name) {
+      if (created) {
         setItems(prev => [created, ...prev]);
-      } else {
-        await refreshList();
+        setFlash("Item adicionado!");
+        setTimeout(() => setFlash(null), 1800);
       }
-      setFlash("Item adicionado!");
-      setTimeout(() => setFlash(null), 1800);
     } catch (e: any) {
       setError(e?.message ?? "Falha ao adicionar");
     } finally {
@@ -53,7 +49,7 @@ function App() {
   async function handleDelete(id: string) {
     if (!window.confirm("Remover este item?")) return;
     const prev = items;
-    setItems(items.filter(i => getId(i) !== id));
+    setItems(items.filter(i => i.id !== id));
     try {
       await deleteFood(id);
       setFlash("Item removido.");
@@ -63,30 +59,6 @@ function App() {
       setItems(prev);
     }
   }
-
-  const categories = useMemo(() => {
-    const set = new Set<string>();
-    items.forEach(i => i.type && set.add(i.type));
-    return Array.from(set).sort((a,b)=>a.localeCompare(b));
-  }, [items]);
-
-  const filtered = useMemo(() => {
-    let list = items;
-    if (cat !== "__all__") list = list.filter(i => (i.type ?? "") === cat);
-    const s = q.trim().toLowerCase();
-    if (s) list = list.filter(i => i.name?.toLowerCase().includes(s));
-    switch (sort) {
-      case "price_asc":  list = [...list].sort((a,b)=>(Number(a.price)||0)-(Number(b.price)||0)); break;
-      case "price_desc": list = [...list].sort((a,b)=>(Number(b.price)||0)-(Number(a.price)||0)); break;
-      default:           list = [...list].sort((a,b)=> (a.name||"").localeCompare(b.name||""));
-    }
-    return list;
-  }, [items, q, cat, sort]);
-
-  const subtotal = useMemo(
-    () => filtered.reduce((acc, it) => acc + (Number(it.price) || 0), 0),
-    [filtered]
-  );
 
   return (
     <div className="page">
@@ -108,47 +80,20 @@ function App() {
 
       <section className="panel">
         <div className="panel-inner menu-inner">
-          <div className="toolbar">
-            <h2 className="panel-title">Itens</h2>
-            <div className="toolbar-row">
-              <select className="select" value={cat} onChange={(e)=>setCat(e.target.value)}>
-                <option value="__all__">Todas as categorias</option>
-                {categories.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-              <select className="select" value={sort} onChange={(e)=>setSort(e.target.value as any)}>
-                <option value="name_asc">Nome A–Z</option>
-                <option value="price_asc">Preço ↑</option>
-                <option value="price_desc">Preço ↓</option>
-              </select>
-              <input className="search" placeholder="Buscar item…" value={q} onChange={(e)=>setQ(e.target.value)} />
-            </div>
-            <span className="muted">
-              {filtered.length} itens • {subtotal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-            </span>
-          </div>
-
+          <h2 className="panel-title">Itens</h2>
           {loadingList ? (
-            <div className="skeleton-list"><div className="skeleton-card"/><div className="skeleton-card"/><div className="skeleton-card"/></div>
-          ) : filtered.length === 0 ? (
+            <p>Carregando...</p>
+          ) : items.length === 0 ? (
             <p className="muted">Nenhum item encontrado.</p>
           ) : (
             <div className="grid">
-              {filtered.map(it => {
-                const id = getId(it);
-                const priceText = Number(it.price || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-                return (
-                  <article key={id || it.name} className="card">
-                    <div className="thumb">
-                      <img src={it.imageUrl || "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?q=80&w=600&auto=format&fit=crop"} alt={it.name} loading="lazy" />
-                    </div>
-                    <div className="body">
-                      <strong>{it.name}</strong>
-                      <span>{priceText}</span>
-                    </div>
-                    {id && <button className="btn-ghost" onClick={()=>handleDelete(id)}>Remover</button>}
-                  </article>
-                );
-              })}
+              {items.map(it => it.id && (
+                <FoodCard
+                  key={it.id}
+                  food={it}
+                  onDelete={handleDelete}
+                />
+              ))}
             </div>
           )}
         </div>
