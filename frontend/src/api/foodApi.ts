@@ -1,22 +1,36 @@
 import type { Food } from "../types/Food";
 
-const envApiUrl = (typeof process !== "undefined" && (process as any)?.env?.REACT_APP_API_URL) || "";
-const envResource = (typeof process !== "undefined" && (process as any)?.env?.REACT_APP_API_RESOURCE) || "";
-const runtimeApiUrl = (typeof window !== "undefined" && (window as any)?.__API_URL__) || "";
-const runtimeResource = (typeof window !== "undefined" && (window as any)?.__API_RESOURCE__) || "";
+const envApiUrl =
+  (typeof process !== "undefined" && (process as any)?.env?.REACT_APP_API_URL) || "";
+const envResource =
+  (typeof process !== "undefined" && (process as any)?.env?.REACT_APP_API_RESOURCE) || "";
+const runtimeApiUrl =
+  (typeof window !== "undefined" && (window as any)?.__API_URL__) || "";
+const runtimeResource =
+  (typeof window !== "undefined" && (window as any)?.__API_RESOURCE__) || "";
+
 const API_BASE = (envApiUrl || runtimeApiUrl || "").replace(/\/$/, "");
-const RESOURCE = (envResource || runtimeResource || "/api/products").startsWith("/")
-  ? (envResource || runtimeResource || "/api/products")
-  : `/${envResource || runtimeResource || "api/products"}`;
+const RESOURCE = (envResource || runtimeResource || "/api/foods").startsWith("/")
+  ? (envResource || runtimeResource || "/api/foods")
+  : `/${envResource || runtimeResource || "api/foods"}`;
 
 async function fetchJSON<T>(input: RequestInfo | URL, init?: RequestInit): Promise<T> {
-  const res = await fetch(input, { headers: { "Content-Type": "application/json" }, ...init });
+  const res = await fetch(input, {
+    headers: { "Content-Type": "application/json" },
+    ...init,
+  });
+
   const ct = res.headers.get("content-type") || "";
   if (res.ok && ct.includes("application/json")) return (await res.json()) as T;
   if (res.ok && !ct.includes("application/json")) {
     const text = await res.text();
-    try { return JSON.parse(text) as T; } catch { return undefined as unknown as T; }
+    try {
+      return JSON.parse(text) as T;
+    } catch {
+      return undefined as unknown as T;
+    }
   }
+
   let message = `${res.status} ${res.statusText}`;
   try {
     if (ct.includes("application/json")) {
@@ -39,8 +53,21 @@ function normalizeFood(obj: any): Food {
   const id = pick<string>(obj, ["_id", "id"]);
   const rawPrice = pick<any>(obj, ["price", "preco", "valor", "amount"]);
   const name = pick<string>(obj, ["name", "nome", "title", "productName"]);
-  const img = pick<string>(obj, ["imageUrl", "image_url", "image", "url", "photo", "picture", "thumbnail"]);
-  const n = typeof rawPrice === "number" ? rawPrice : rawPrice != null ? Number(String(rawPrice).replace(/\./g, "").replace(",", ".")) : 0;
+  const img = pick<string>(obj, [
+    "imageUrl",
+    "image_url",
+    "image",
+    "url",
+    "photo",
+    "picture",
+    "thumbnail",
+  ]);
+  const n =
+    typeof rawPrice === "number"
+      ? rawPrice
+      : rawPrice != null
+      ? Number(String(rawPrice).replace(/\./g, "").replace(",", "."))
+      : 0;
 
   return {
     _id: typeof id === "string" ? id : undefined,
@@ -55,6 +82,7 @@ function normalizeFood(obj: any): Food {
   };
 }
 
+// === API ===
 export async function getFoods(): Promise<Food[]> {
   const raw = await fetchJSON<any>(`${API_BASE}${RESOURCE}`);
   const arr = Array.isArray(raw)
@@ -82,7 +110,10 @@ export async function addFood(body: CreateFoodDTO): Promise<Food | null> {
   return norm;
 }
 
-export async function updateFood(id: string, body: Partial<CreateFoodDTO>): Promise<Food> {
+export async function updateFood(
+  id: string,
+  body: Partial<CreateFoodDTO>
+): Promise<Food> {
   const updated = await fetchJSON<any>(`${API_BASE}${RESOURCE}/${id}`, {
     method: "PUT",
     body: JSON.stringify(body),
@@ -95,5 +126,11 @@ export async function deleteFood(id: string): Promise<{ ok: boolean }> {
   return { ok: true };
 }
 
-export const foodApi = { list: getFoods, create: addFood, update: updateFood, remove: deleteFood };
+export const foodApi = {
+  list: getFoods,
+  create: addFood,
+  update: updateFood,
+  remove: deleteFood,
+};
+
 export default foodApi;
