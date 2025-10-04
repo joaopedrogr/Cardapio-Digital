@@ -3,14 +3,11 @@ import { Food } from "../types/Food";
 
 type Props = {
   food: Food;
-  onDelete: (id: string) => void; // <-- string
+  onDelete: (id: string) => void;
 };
 
 const FoodCard: React.FC<Props> = ({ food, onDelete }) => {
-  // aceita _id ou id; se nenhum existir, não renderiza botão
-  const id = food._id ?? food.id ?? "";
-
-  // garante número para toFixed
+  const id = food.id ?? "";
   const priceNum = typeof food.price === "number" ? food.price : Number(food.price ?? 0);
 
   return (
@@ -19,11 +16,8 @@ const FoodCard: React.FC<Props> = ({ food, onDelete }) => {
         <strong>{food.name}</strong>
         <p>R$ {priceNum.toFixed(2)}</p>
       </div>
-
       {id && (
-        <button onClick={() => onDelete(id)}>
-          Deletar
-        </button>
+        <button onClick={() => onDelete(id)}>Deletar</button>
       )}
     </div>
   );
