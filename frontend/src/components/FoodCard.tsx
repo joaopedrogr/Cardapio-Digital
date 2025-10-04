@@ -12,13 +12,12 @@ const FoodCard: React.FC<Props> = ({ food, onDelete }) => {
 
   return (
     <div className="food-card">
+      {food.imageUrl && <img src={food.imageUrl} alt={food.name} />}
       <div className="food-body">
         <strong>{food.name}</strong>
         <p>R$ {priceNum.toFixed(2)}</p>
       </div>
-      {id && (
-        <button onClick={() => onDelete(id)}>Deletar</button>
-      )}
+      {id && <button onClick={() => onDelete(id)}>Deletar</button>}
     </div>
   );
 };
