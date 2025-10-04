@@ -1,71 +1,39 @@
 import type { Food } from "../types/Food";
 
-const envApiUrl =
-  (typeof process !== "undefined" && (process as any)?.env?.REACT_APP_API_URL) || "";
-const envResource =
-  (typeof process !== "undefined" && (process as any)?.env?.REACT_APP_API_RESOURCE) || "";
-const runtimeApiUrl =
-  (typeof window !== "undefined" && (window as any)?.__API_URL__) || "";
-const runtimeResource =
-  (typeof window !== "undefined" && (window as any)?.__API_RESOURCE__) || "";
 
-const API_BASE = (envApiUrl || runtimeApiUrl || "").replace(/\/$/, "");
-const RESOURCE = (envResource || runtimeResource || "/api/foods").startsWith("/")
-  ? (envResource || runtimeResource || "/api/foods")
-  : `/${envResource || runtimeResource || "api/foods"}`;
+const API_BASE = "http://localhost:5000";
+const RESOURCE = "/api/foods";
 
-async function fetchJSON<T>(input: RequestInfo | URL, init?: RequestInit): Promise<T> {
-  const res = await fetch(input, {
+async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
+  const res = await fetch(url, {
     headers: { "Content-Type": "application/json" },
-    ...init,
+    ...options,
   });
 
-  const ct = res.headers.get("content-type") || "";
-  if (res.ok && ct.includes("application/json")) return (await res.json()) as T;
-  if (res.ok && !ct.includes("application/json")) {
+  if (res.ok) {
+    const ct = res.headers.get("content-type") || "";
+    if (ct.includes("application/json")) return (await res.json()) as T;
+    return undefined as unknown as T;
+  } else {
     const text = await res.text();
-    try {
-      return JSON.parse(text) as T;
-    } catch {
-      return undefined as unknown as T;
-    }
+    throw new Error(`${res.status} ${res.statusText} — ${text}`);
   }
-
-  let message = `${res.status} ${res.statusText}`;
-  try {
-    if (ct.includes("application/json")) {
-      const j = await res.json();
-      message += ` — ${j?.message ?? JSON.stringify(j).slice(0, 200)}`;
-    } else {
-      const txt = await res.text();
-      message += ` — ${txt.slice(0, 200)}`;
-    }
-  } catch {}
-  throw new Error(message);
 }
 
 function normalizeFood(obj: any): Food {
-  const id = obj?.id ?? obj?._id;
-  const priceRaw = obj?.price;
-  const name = obj?.name ?? "";
-  const imageUrl = obj?.imageUrl ?? undefined;
-  const price = typeof priceRaw === "number" ? priceRaw : Number(priceRaw ?? 0);
-
   return {
-    id: typeof id === "string" ? id : undefined,
-    name,
-    price,
-    imageUrl,
+    id: obj?.id,
+    name: obj?.name ?? "",
+    price: Number(obj?.price ?? 0),
+    imageUrl: obj?.imageUrl,
     createdAt: obj?.createdAt ?? obj?.created_at,
   };
 }
 
 export async function getFoods(): Promise<Food[]> {
   const raw = await fetchJSON<any>(`${API_BASE}${RESOURCE}`);
-  const arr = Array.isArray(raw)
-    ? raw
-    : raw?.products ?? raw?.items ?? raw?.data ?? raw?.result ?? [];
-  return Array.isArray(arr) ? arr.map(normalizeFood) : [];
+  if (!Array.isArray(raw)) return [];
+  return raw.map(normalizeFood);
 }
 
 export type CreateFoodDTO = {
@@ -74,15 +42,15 @@ export type CreateFoodDTO = {
   imageUrl?: string;
 };
 
-export async function addFood(body: CreateFoodDTO): Promise<Food | null> {
+export async function addFood(body: CreateFoodDTO): Promise<Food> {
   const created = await fetchJSON<any>(`${API_BASE}${RESOURCE}`, {
     method: "POST",
     body: JSON.stringify(body),
   });
-  return created ? normalizeFood(created) : null;
+  return normalizeFood(created);
 }
 
-export async function updateFood(id: string, body: Partial<CreateFoodDTO>): Promise<Food> {
+export async function updateFood(id: number | string, body: Partial<CreateFoodDTO>): Promise<Food> {
   const updated = await fetchJSON<any>(`${API_BASE}${RESOURCE}/${id}`, {
     method: "PUT",
     body: JSON.stringify(body),
@@ -90,7 +58,7 @@ export async function updateFood(id: string, body: Partial<CreateFoodDTO>): Prom
   return normalizeFood(updated);
 }
 
-export async function deleteFood(id: string): Promise<{ ok: boolean }> {
+export async function deleteFood(id: number | string): Promise<{ ok: boolean }> {
   await fetchJSON<void>(`${API_BASE}${RESOURCE}/${id}`, { method: "DELETE" });
   return { ok: true };
 }
