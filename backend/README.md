@@ -9,7 +9,7 @@ Node.js · Express · TypeScript · Prisma ORM · SQLite · Docker
 
 ## 🚀 Como Rodar
 ```
-git clone https://github.com/seuusuario/Project.git
+git clone https://github.com/DSW-II-FullStackProject/Project.git
 cd backend
 npm install
 npm run dev
