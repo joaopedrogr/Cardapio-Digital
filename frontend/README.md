@@ -11,5 +11,5 @@ React · TypeScript · Vite · CSS
 git clone https://github.com/DSW-II-FullStackProject/Cardapio-Digital.git
 cd frontend
 npm install
-npm run dev
+npm start
 ```
