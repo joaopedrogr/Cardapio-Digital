@@ -154,7 +154,7 @@ npm run dev
 cd frontend
 npm install
 cp .env.example .env
-npm run dev
+npm start
 ```
 
 A aplicação estará disponível em:  `http://localhost:3000`
