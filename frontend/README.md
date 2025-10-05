@@ -8,7 +8,7 @@ React · TypeScript · Vite · CSS
 
 ### 🚀 Rodando o Projeto
 ```
-git clone https://github.com/seuusuario/Project.git
+git clone https://github.com/DSW-II-FullStackProject/Project.git
 cd frontend
 npm install
 npm run dev
