@@ -21,12 +21,11 @@ export default function Login({ onLogin, onError }: Props) {
     const body = isRegister ? { name, email, password } : { email, password };
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE}${endpoint}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-    });
-
+      });
 
       const data = await res.json();
 
