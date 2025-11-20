@@ -1,7 +1,6 @@
 import type { Food } from "../types/Food";
 
-
-const API_BASE = "http://localhost:5000";
+const API_BASE = "https://cardapio-digital-tmu7.onrender.com";
 const RESOURCE = "/api/foods";
 
 async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
