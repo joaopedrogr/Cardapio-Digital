@@ -2,23 +2,26 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copia apenas os arquivos necessários inicialmente
+# Copia package.json e package-lock.json
 COPY package*.json ./
 
 # Instala dependências
 RUN npm install
 
-# Copia o restante do projeto
+# Copia o restante do projeto (incluindo /prisma)
 COPY . .
 
 # Gera o Prisma Client
 RUN npx prisma generate
 
-# Compila o TypeScript
+# Aplica o schema no banco (Cria tabelas no Supabase)
+RUN npx prisma db push
+
+# Compila TypeScript
 RUN npm run build
 
-# Expõe a porta do backend
+# Expor porta usada no Render
 EXPOSE 5000
 
-# Inicia o servidor em produção
+# Start do servidor
 CMD ["npm", "run", "start"]
