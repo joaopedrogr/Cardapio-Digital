@@ -13,7 +13,7 @@ export const getRecommendation = async (req: AuthRequest, res: Response) => {
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "text-bison-001" });
 
     const prompt = `Você é um assistente da pizzaria Tri Fratelli.
 Um cliente pediu uma recomendação com a seguinte preferência: "${message}"
