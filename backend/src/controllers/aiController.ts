@@ -5,6 +5,13 @@ import { AuthRequest } from "../middleware/authMiddleware";
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
+async function listarModelos() {
+  const modelos = await genAI.listModels();
+  console.log(modelos);
+}
+
+listarModelos();
+
 export const getRecommendation = async (req: AuthRequest, res: Response) => {
   const { message } = req.body;
 
