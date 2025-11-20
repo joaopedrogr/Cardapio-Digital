@@ -2,6 +2,8 @@ import "./App.css";
 import { useEffect, useState } from "react";
 import FoodForm from "./components/FoodForm";
 import FoodCard from "./components/FoodCard";
+import Login from "./components/Login";
+import AIRecommendation from "./components/AIRecommendation";
 import type { Food } from "./types/Food";
 import { getFoods, addFood, deleteFood } from "./api/foodApi";
 import logo from "./assets/logo-tri-fratelli.png";
@@ -14,6 +16,10 @@ function App() {
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [flash, setFlash] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
+  const [user, setUser] = useState<any>(
+    localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")!) : null
+  );
 
   async function refreshList() {
     try {
@@ -62,44 +68,103 @@ function App() {
     }
   }
 
+  function handleLogin(newToken: string, newUser: any) {
+    setToken(newToken);
+    setUser(newUser);
+    localStorage.setItem("token", newToken);
+    localStorage.setItem("user", JSON.stringify(newUser));
+    setFlash(`Bem-vindo, ${newUser.name}!`);
+    setTimeout(() => setFlash(null), 2000);
+  }
+
+  function handleLogout() {
+    setToken(null);
+    setUser(null);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setFlash("Você saiu.");
+    setTimeout(() => setFlash(null), 1500);
+  }
+
+  function handleError(err: string) {
+    setError(err);
+    setTimeout(() => setError(null), 3000);
+  }
+
   return (
     <div className="page">
       <header className="hero hero-center">
         <img src={logo} alt="Tri Fratelli Pizza" className="brand-logo" />
         <h1 className="hero-title">Cardápio</h1>
         <p className="hero-subtitle">Cadastre itens de forma simples e rápida</p>
+        {user && (
+          <p className="hero-subtitle">
+            Olá, {user.name}!{" "}
+            <button
+              onClick={handleLogout}
+              style={{
+                background: "none",
+                border: "none",
+                color: "var(--brand-terracotta)",
+                textDecoration: "underline",
+                cursor: "pointer",
+                fontWeight: 700,
+              }}
+            >
+              Sair
+            </button>
+          </p>
+        )}
       </header>
 
       {error && <div className="banner banner-error"><strong>Erro:</strong> {error}</div>}
       {flash && <div className="banner banner-ok">{flash}</div>}
 
-      <section className="panel">
-        <div className="panel-inner menu-inner">
-          <h2 className="panel-title">Novo item</h2>
-          <FoodForm onAdd={handleAdd} loading={adding} />
-        </div>
-      </section>
-
-      <section className="panel">
-        <div className="panel-inner menu-inner">
-          <h2 className="panel-title">Itens</h2>
-          {loadingList ? (
-            <p>Carregando...</p>
-          ) : items.length === 0 ? (
-            <p className="muted">Nenhum item encontrado.</p>
-          ) : (
-            <div className="grid">
-              {items.map(it => it.id && (
-                <FoodCard
-                  key={it.id}
-                  food={it}
-                  onDelete={handleDelete}
-                />
-              ))}
+      {!token ? (
+        <section className="panel">
+          <div className="panel-inner menu-inner">
+            <h2 className="panel-title">Login</h2>
+            <Login onLogin={handleLogin} onError={handleError} />
+          </div>
+        </section>
+      ) : (
+        <>
+          <section className="panel">
+            <div className="panel-inner menu-inner">
+              <h2 className="panel-title">Recomendação IA</h2>
+              <AIRecommendation token={token} onError={handleError} />
             </div>
-          )}
-        </div>
-      </section>
+          </section>
+
+          <section className="panel">
+            <div className="panel-inner menu-inner">
+              <h2 className="panel-title">Novo item</h2>
+              <FoodForm onAdd={handleAdd} loading={adding} />
+            </div>
+          </section>
+
+          <section className="panel">
+            <div className="panel-inner menu-inner">
+              <h2 className="panel-title">Itens</h2>
+              {loadingList ? (
+                <p>Carregando...</p>
+              ) : items.length === 0 ? (
+                <p className="muted">Nenhum item encontrado.</p>
+              ) : (
+                <div className="grid">
+                  {items.map(it => it.id && (
+                    <FoodCard
+                      key={it.id}
+                      food={it}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+        </>
+      )}
     </div>
   );
 }
