@@ -1,12 +1,19 @@
 # 🍕 TRI FRATELLI - CARDÁPIO DIGITAL
+
+
 ## OBJETIVO  
 Desenvolver um sistema completo de cardápio digital para a pizzaria Tri Fratelli, com frontend moderno, backend escalável, banco em nuvem, autenticação segura, containerização e integração com IA para recomendações de pizzas.
+
 Link do projeto: https://cardapio-digital-qnfh.vercel.app/
+
 ---
+
 ## LAYOUT
 A interface apresenta um design simples e elegante, com cores e estilos inspirados na identidade visual da pizzaria Tri Fratelli.
+
 ### Vídeo do projeto:
 https://github.com/user-attachments/assets/3ea8df99-6507-4632-ba43-330a0a390377
+
 ### Imagens do projeto:
 ![imagem](./frontend/assets/image.png)
 ![imagem](./frontend/assets/image1.png)
@@ -16,7 +23,9 @@ https://github.com/user-attachments/assets/3ea8df99-6507-4632-ba43-330a0a390377
 ![imagem](./frontend/assets/image5.png)
 ![imagem](./frontend/assets/image6.png)
 ![imagem](./frontend/assets/image7.png)
+
 ---
+
 ## TECNOLOGIAS UTILIZADAS
 ### Back-end
 ![Node.js](https://skillicons.dev/icons?i=nodejs)
@@ -34,6 +43,7 @@ https://github.com/user-attachments/assets/3ea8df99-6507-4632-ba43-330a0a390377
 - JWT — Autenticação e proteção de rotas
 - Docker & Docker Compose — Containerização da aplicação
 - API Gemini — IA generativa para análise e recomendações
+
 ### Front-end
 ![React](https://skillicons.dev/icons?i=react)
 ![Typescript](https://skillicons.dev/icons?i=typescript)
@@ -45,26 +55,33 @@ https://github.com/user-attachments/assets/3ea8df99-6507-4632-ba43-330a0a390377
 - Vite – Ferramenta de build e desenvolvimento otimizada  
 - Axios – Cliente HTTP para integração com a API  
 - CSS3 – Estilização moderna e responsiva  
+
 ### Banco de Dados
 ![Prisma](https://skillicons.dev/icons?i=prisma)
 ![supabase](https://skillicons.dev/icons?i=supabase)
 ![postgres](https://skillicons.dev/icons?i=postgres)
 - Supabase (PostgreSQL) — Banco de produção em nuvem
 - Prisma ORM — Controle de schema e queries
+
 ![imagem](./frontend/assets/image10.png)
+
 ### Criptografia
 - Registro e login com criptografia bcrypt
 - Tokens JWT para acesso protegido
 - Middlewares de segurança
 - Variáveis sensíveis via .env
+
 ### Containerização
 ![Docker](https://skillicons.dev/icons?i=docker)
 - Docker – Containerização da aplicação para ambiente isolado  
 - Dockerfile – Configuração de ambiente e dependências  
+
 ### Inteligência Artificial (Gemini 2.5 Flash)
 O sistema utiliza IA para:
 - Recomendações inteligentes com base no desejado, como por exmeplo se deseja uma pizza de portugal, pizza apimentada
+
 ---
+
 ## ARQUITETURA DA APLICAÇÃO
 ### Arquitetura Backend
 ```
@@ -116,8 +133,11 @@ frontend/
 ### Tabela de alimentos:
 ![imagem](./frontend/assets/image9.png)
 ---
+
 ## ENDPOINTS DA API
+
 Link do backend: https://cardapio-digital-tmu7.onrender.com/
+
 ### Autenticação
 ```
 | Método | Rota              | Descrição                             |
