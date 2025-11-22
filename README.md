@@ -16,13 +16,7 @@ https://github.com/user-attachments/assets/3ea8df99-6507-4632-ba43-330a0a390377
 
 ### Imagens do projeto:
 ![imagem](./frontend/assets/image.png)
-![imagem](./frontend/assets/image1.png)
-![imagem](./frontend/assets/image2.png)
-![imagem](./frontend/assets/image3.png)
-![imagem](./frontend/assets/image4.png)
-![imagem](./frontend/assets/image5.png)
-![imagem](./frontend/assets/image6.png)
-![imagem](./frontend/assets/image7.png)
+
 
 ---
 
